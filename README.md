@@ -188,7 +188,13 @@ CREATE TABLE SCORE (
 
 ## **5. Producto: Diseño Físico, Script de la Base de datos con inserción de datos**
 
+### Diseño Físico: En esta sección se inserta el diagrama de la base de datos generado por SQL Server.
 
+![DiagramaSQL](https://github.com/Bremel1011/Bremel1011/blob/main/DIAGRAMA%20SQL.png?raw=true)
+
+### Script de la base de datos: 
+
+[ScripBD](docs/CONTRIBUTING.md)
 
 
 
