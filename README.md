@@ -33,6 +33,10 @@ En esta etapa se procedió con la creación de las entidades a considerar con su
 
 ![Diagrama E_R prestamos financieros](https://github.com/Bremel1011/Bremel1011/blob/main/Diagrama%20E_R%20-%20ScoreEmpresa.jpg?raw=true)
 
+## **3. Diseño: Definición del Modelo Lógico de la Base de Datos.**
+
+En esta etapa se procedió con la definición de la estructura de la base de datos y su funcionalidad de tal manera que sea eficiente y evitemos duplicidad de datos o tablas.
+
 
 
 
