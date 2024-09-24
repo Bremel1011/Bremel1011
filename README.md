@@ -194,7 +194,7 @@ CREATE TABLE SCORE (
 
 ### Script de la base de datos: 
 
-[ScripBD](docs/CONTRIBUTING.md)
+[ScripBD](docs/SCRIPTBDG10.sql)
 
 
 
