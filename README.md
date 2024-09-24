@@ -196,6 +196,7 @@ CREATE TABLE SCORE (
 
 [ScriptBD](SCRIPTBDG10.sql)
 
+
 ## **6. Anexos: Evidencias de Consultas, funciones, procedimientos almacenados, vistas, etc. realizados sobre la base de datos implementada.**
 
 Se realizaron 10 ejercicios propuestos, en los cuales se incluye el cálculo del Score Crediticio.
