@@ -37,7 +37,7 @@ En esta etapa se procedió con la creación de las entidades a considerar con su
 
 En esta etapa se procedió con la definición de la estructura de la base de datos y su funcionalidad de tal manera que sea eficiente y evitemos duplicidad de datos o tablas.
 
-
+![Modelo _logico](https://github.com/Bremel1011/Bremel1011/blob/main/score-crediticio-empresas_1.png?raw=true)
 
 
 
