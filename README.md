@@ -196,7 +196,7 @@ CREATE TABLE SCORE (
 
 - Script generado por SQL: [ScriptBD](SCRIPTBDG10.sql)
   
-- Script generado por SQL: [Inserción de datos](Inserción de datos.sql)
+- Script generado por SQL: [Inserción de datos](Inserción_de_datos.sql)
 
 
 ## **6. Anexos: Evidencias de Consultas, funciones, procedimientos almacenados, vistas, etc. realizados sobre la base de datos implementada.**
