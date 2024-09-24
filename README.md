@@ -192,12 +192,157 @@ CREATE TABLE SCORE (
 
 ![DiagramaSQL](https://github.com/Bremel1011/Bremel1011/blob/main/DIAGRAMA%20SQL.png?raw=true)
 
-### Script de la base de datos: 
+### Script de la base de datos: En esta sección se inserta el script de la base de datos e inserción de datos generado por SQL Server.
 
 [ScriptBD](SCRIPTBDG10.sql)
 
+## **6.Anexos: Evidencias de Consultas, funciones, procedimientos almacenados, vistas, etc. realizados sobre la base de datos implementada.**
+
+Se realizaron 10 ejercicios propuestos, en los cuales se incluye el cálculo del Score Crediticio.
+
+```
+/*************************************************************
+**************************************************************
+**********************CONSULTAS*******************************
+**************************************************************
+**************************************************************/
+
+---- 1. Obtener todas las empresas y su sector correspondiente
+
+SELECT E.NOMBRE_EMPRESA, S.NOMBRE_SECTOR
+FROM EMPRESAS E
+INNER JOIN SECTOR S ON E.ID_SIC = S.ID_SIC
+WHERE NOMBRE_EMPRESA LIKE'%P%';
+
+---- 2. Listar los préstamos activos (con estado 'ACTIVO') y su ejecutivo a cargo
+
+SELECT P.ID_OPERACION, P.MONTO, P.TASA_INTERES, P.FECHA_INICIO, P.FECHA_VENCIMIENTO, E.NOMBRES, E.APELLIDO_PATERNO
+FROM PRESTAMOS P
+INNER JOIN EJECUTIVO_RELACION E ON P.ID_EJECUTIVO = E.ID_EJECUTIVO
+WHERE P.ESTADO_PRESTAMO = 'ACTIVO';
+
+
+---- 3. Contar el número de empresas registradas por año
+
+SELECT YEAR(FECHA_REGISTRO) AS ANIO, COUNT(*) AS NUM_EMPRESAS
+FROM EMPRESAS
+GROUP BY YEAR(FECHA_REGISTRO);
+
+---- 4. Obtener el total de deuda acumulada por empresa en los estados financieros
+
+SELECT E.NOMBRE_EMPRESA, SUM(EF.DEUDA) AS TOTAL_DEUDA
+FROM ESTADOS_FINANCIEROS EF
+INNER JOIN EMPRESAS E ON EF.ID_EMPRESA = E.ID_EMPRESA
+GROUP BY E.NOMBRE_EMPRESA;
+
+---- 5. Encontrar las empresas con más de un préstamo activo
+
+SELECT E.NOMBRE_EMPRESA, COUNT(P.ID_OPERACION) AS NUMERO_PRESTAMOS
+FROM EMPRESAS E
+INNER JOIN PRESTAMOS P ON E.ID_EMPRESA = P.ID_EMPRESA
+WHERE P.ESTADO_PRESTAMO = 'ACTIVO'
+GROUP BY E.NOMBRE_EMPRESA
+HAVING COUNT(P.ID_OPERACION) <= 2;
+
+---- 6. Obtener las garantías asociadas a un préstamo específico
+
+SELECT G.TIPO_GARANTIA, sum(G.MONTO) AS MONTO_GARANTIZADO, 
+sum(P.MONTO) AS PRESTAMO, 
+ROUND(SUM(G.MONTO)/SUM(P.MONTO),2,1) AS COBERTURA
+FROM GARANTIAS G
+LEFT JOIN PRESTAMOS P ON G.ID_OPERACION = P.ID_OPERACION
+GROUP BY G.TIPO_GARANTIA
+
+---- 7. Calcular el score crediticio de las empresas 
+
+
+UPDATE SCORE 
+SET SCORE = (
+    SELECT TOP 1
+        CASE 
+            WHEN H.MORA_SF <= 15 OR (H.CLASIFICACION_SBS = 0 AND H.NUMERO_DE_IF < 2 
+			AND (H.deuda_sf / E.VENTAS) <= 0.5) THEN 'NIVEL BAJO'
+            WHEN H.MORA_SF <= 50 AND H.MORA_SF > 15 AND H.CLASIFICACION_SBS = 1 
+			AND (H.deuda_sf / E.VENTAS) <= 1 AND (H.deuda_sf / E.VENTAS) > 0.5 THEN 'NIVEL MEDIO'
+            WHEN H.MORA_SF <= 120 AND H.MORA_SF > 50 AND H.CLASIFICACION_SBS = 2 
+			AND (H.deuda_sf / E.VENTAS) <= 1.5 AND (H.deuda_sf / E.VENTAS) > 1 THEN 'NIVEL ALTO MEDIO'
+            WHEN H.MORA_SF > 120 AND H.CLASIFICACION_SBS IN (3, 4) 
+			AND (H.deuda_sf / E.VENTAS) > 1.5 THEN 'NIVEL ALTO'
+            ELSE 'NIVEL ALTO' 
+        END 
+    FROM HISTORIAL_CREDITICIO_EXTERNO H
+    LEFT JOIN ESTADOS_FINANCIEROS E ON H.ID_EMPRESA = E.ID_EMPRESA
+    WHERE S.ID_EMPRESA = H.ID_EMPRESA
+)
+FROM SCORE S;
+
+
+---- 8. Conocer el score para cada empresa con prestamos vigentes y sector asociado
+
+-- CREAMOS TABLA TEMPORAL 
+SELECT  A.ID_EMPRESA, A.RUC, A.NOMBRE_EMPRESA, B.NOMBRE_SECTOR INTO #TEMP1
+FROM
+EMPRESAS A LEFT JOIN SECTOR B ON A.ID_SIC = B.ID_SIC;
+
+-- CREAMOS CONSULTA
+SELECT A.ID_EMPRESA,A.NOMBRE_EMPRESA, C.SITUACION_CONTABLE, A.NOMBRE_SECTOR,B.SCORE
+FROM #TEMP1 A
+LEFT JOIN SCORE B ON A.ID_EMPRESA = B.ID_EMPRESA 
+LEFT JOIN PRESTAMOS C ON A.ID_EMPRESA = C.ID_EMPRESA 
+WHERE C.SITUACION_CONTABLE IN ('VIGENTE');
+
+--DROP TABLE #TEMP1
 
 
 
+---- 9. Procedure para registrar un nuevo préstamo: Este procedimiento permite registrar un nuevo 
+----préstamo asociado a una empresa, un ejecutivo, y genera una garantía inicial si es proporcionada.
+
+CREATE PROCEDURE RegistrarPrestamo
+    @ID_EMPRESA INT,
+    @MONTO FLOAT,
+    @ESTADO_PRESTAMO VARCHAR(255),
+    @TASA_INTERES DECIMAL(10,2),
+    @FECHA_INICIO DATE,
+    @FECHA_VENCIMIENTO DATE,
+    @ID_EJECUTIVO INT,
+    @SITUACION_CONTABLE VARCHAR(50),
+    @TIPO_GARANTIA VARCHAR(255) = NULL,
+    @MONTO_GARANTIA FLOAT = NULL
+AS
+BEGIN
+    -- Insertar nuevo préstamo
+    INSERT INTO PRESTAMOS (ID_EMPRESA, MONTO, ESTADO_PRESTAMO, TASA_INTERES, FECHA_INICIO, FECHA_VENCIMIENTO, ID_EJECUTIVO, SITUACION_CONTABLE)
+    VALUES (@ID_EMPRESA, @MONTO, @ESTADO_PRESTAMO, @TASA_INTERES, @FECHA_INICIO, @FECHA_VENCIMIENTO, @ID_EJECUTIVO, @SITUACION_CONTABLE);
+
+	-- Obtener el ID del préstamo recién insertado
+    DECLARE @ID_OPERACION INT;
+    SET @ID_OPERACION = SCOPE_IDENTITY(); 
+
+    -- Insertar garantía asociada, si se proporcionó
+    IF @TIPO_GARANTIA IS NOT NULL AND @MONTO_GARANTIA IS NOT NULL
+    BEGIN
+        INSERT INTO GARANTIAS (TIPO_GARANTIA, MONTO, ID_OPERACION)
+        VALUES (@TIPO_GARANTIA, @MONTO_GARANTIA, @ID_OPERACION);
+    END;
+END;
+
+
+---- 10. Procedure para consultar la situación financiera de una empresa
+---- Este procedimiento muestra el estado financiero (ventas, costos, deuda, utilidad neta) de una empresa en un año específico.
+
+CREATE PROCEDURE ConsultarSituacionFinancieraEmpresa
+    @ID_EMPRESA INT,
+    @ANIO DATE
+AS
+BEGIN
+    SELECT VENTAS, COSTOS, DEUDA, UTILIDAD_NETA
+    FROM ESTADOS_FINANCIEROS
+    WHERE ID_EMPRESA = @ID_EMPRESA AND ANIO = @ANIO;
+END;
+```
+
+> [!IMPORTANT]
+> Key information users need to know to achieve their goal.
 
 
