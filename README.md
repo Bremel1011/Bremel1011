@@ -31,9 +31,8 @@ En los últimos años, una entidad bancaria ha experimentado un aumento signific
 
 En esta etapa se procedió con la creación de las entidades a considerar con sus distintas relaciones entre ellas así como la llave principal para la identificación única de cada registro.
 
-![Diagrama E_R - ScoreEmpresa image](Diagrama E_R - ScoreEmpresa.jpg).
 
-
+![![Diagrama E_R prestamos financieros](https://github.com/user-attachments/assets/2ef9b0a1-a4b7-47b9-92c0-840c25d19772)](https://github.com/user-attachments/assets/2ef9b0a1-a4b7-47b9-92c0-840c25d19772)
 
 
 
