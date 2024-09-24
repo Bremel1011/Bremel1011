@@ -194,7 +194,9 @@ CREATE TABLE SCORE (
 
 ### Script de la base de datos: En esta sección se inserta el script de la base de datos e inserción de datos generado por SQL Server.
 
-[ScriptBD](SCRIPTBDG10.sql)
+- Script generado por SQL: [ScriptBD](SCRIPTBDG10.sql)
+  
+- Script generado por SQL: [ScriptBD](SCRIPTBDG10.sql)
 
 
 ## **6. Anexos: Evidencias de Consultas, funciones, procedimientos almacenados, vistas, etc. realizados sobre la base de datos implementada.**
