@@ -39,7 +39,7 @@ En esta etapa se procedió con la definición de la estructura de la base de dat
 
 ![Modelo _logico](https://github.com/Bremel1011/Bremel1011/blob/main/score-crediticio-empresas_1.png?raw=true)
 
-## **4.Construcción: Desarrollo de las sentencias SQL que permiten la construcción de las tablas y demás estructuras de la Base de Datos en SQL SERVER.**
+## **4. Construcción: Desarrollo de las sentencias SQL que permiten la construcción de las tablas y demás estructuras de la Base de Datos en SQL SERVER.**
 
 Se procede con la creación de tablas y definición del tipo de variables a usar.
 
@@ -186,7 +186,7 @@ CREATE TABLE SCORE (
 );
 ```
 
-
+## **5. Producto: Diseño Físico, Script de la Base de datos con inserción de datos**
 
 
 
